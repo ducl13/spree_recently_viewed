@@ -3,7 +3,7 @@ module Spree::ProductsControllerDecorator
     base.include Spree::RecentlyViewedProductsHelper
     base.helper_method [:cached_recently_viewed_products, :cached_recently_viewed_products_ids]
     base.before_action :set_current_order, except: :recently_viewed
-    base.after_action :save_recently_viewed, only: :recently_viewed
+    base.before_action :save_recently_viewed, only: :recently_viewed
   end
 
   def recently_viewed
@@ -13,15 +13,13 @@ module Spree::ProductsControllerDecorator
   private
 
   def save_recently_viewed
-    id = params[:product_id]
-    return unless id.present?
+    product_id = params[:product_id]
+    return unless product_id.present?
 
-    rvp = (cookies['recently_viewed_products'] || '').split(', ')
-    rvp.delete(id)
-    rvp << id unless rvp.include?(id.to_s)
-    # rvp_max_count = Spree::RecentlyViewed::Config.preferred_recently_viewed_products_max_count
-    # rvp.delete_at(0) if rvp.size > rvp_max_count.to_i
-    cookies['recently_viewed_products'] = rvp.join(', ')
+    recently_viewed_service = RecentlyViewedProductsService.new(spree_current_user, product_id, cookies)
+    recently_viewed_service.track_viewed_product
+    @recently_viewed_products = recently_viewed_service.recently_viewed_products
+
   end
 end
 

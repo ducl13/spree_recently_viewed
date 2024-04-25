@@ -1,0 +1,24 @@
+<div class="category-wrapper">
+  <div class="row no-gutters">
+    
+    <div class= "col-xl-12">
+      <div class="products-wrapper">
+        <div class="category-banner phone-visible">
+          <% if browser.device.mobile? %>
+              <%= image_tag "noimage/default-category-image-small.jpg", alt:"" %>
+          <% else %>
+            <%= image_tag "noimage/default-category-image.jpg", alt:"" %>
+          <% end %>
+        </div>
+        <%= render partial: 'filters' %>
+        <%= render partial: 'mobile_filters' %>
+        <% if @recently_viewed_products.present? %>
+          <%= render 'spree/shared/products', products: @recently_viewed_products %>
+        <% end %>
+      </div>
+      <% if @recently_viewed_products.present? %>
+        <%= render partial: 'spree/taxons/pagination', locals: { pagy: @pagy }  %>
+      <% end %>
+    </div>
+  </div>
+</div>

@@ -1,35 +1,48 @@
-<%# if cached_recently_viewed_products.any? %>
-  <!-- <div id="recently_viewed" class="mt-4" data-hook>
-    <h3 class="product-section-title"><%#= Spree.t(:recently_viewed_products) %></h3>
-
-    <ul id="recently_viewed_products" class="list-group">
-      <%# cached_recently_viewed_products.each do |product| %>
-        <li class="list-group-item"><%#= link_to product.name, product %></li>
-      <%# end %>
-    </ul>
-  </div> -->
-<%# end %>
-
-<% if cached_recently_viewed_products.any? %>
-  <div class="bg-white">
+<% if @recently_viewed_products.present? %>
+  <div class="bg-white product-recently-viewed-slider">
     <div class="row mt-6 no-gutters">
-      <div class="col-xl-2 tablet-hide"></div>
       <div class="col-xl-6 col-lg-8">
         <ul class="nav nav-tabs" role="tablist">
-          <li class="nav-item" role="presentation"><a class="nav-link active" data-toggle="tab" href="#recently-viewed-products-wrap"><%= Spree.t(:recently_viewed_products) %></a></li>
+          <li class="nav-item" role="presentation"><a class="nav-link active" data-toggle="tab" href="#recently-viewed-products-wrap"> Your Recently Viewed Items</a></li>
+          <%= link_to "(Clear)", clear_recently_viewed_products_path, class: "product-clear-btn", remote: true, data: { confirm: "Are you sure you want to clear all recently viewed products?" } %>
+          
         </ul>
       </div>
     </div>
-    <div class="tab-content">
-      <div class="tab-pane fade show active" id="recently-viewed-products-wrap" role="tabpanel">
-        <div class="row no-gutters">
-          <div class="col-lg-12">
-            <div class="slider-wrapper position-relative">
-              <ul id="recently-viewed-products" class="ontent-slider">
-                <% cached_recently_viewed_products.each do |product| %>
-                  <%= render 'spree/products/product', product: product, image_class: 'product-component-plp-image' %>
+    <div class="tab-content position-relative">
+      <%= link_to "See all", recently_viewed_products_path, class: "see-all-btn" %>
+      <div class="tab-pane active" id="recently-viewed-products-wrap" role="tabpanel">
+        <div>
+          <div>
+            <div class="slider-wrapper position-relative recent-product-slider">
+              <div id="recently-viewed-products" class="ontent-slider">
+                <% @recently_viewed_products.each do |product| %>
+                  <% cache cache_key_for_product_wihtout_version(product) do %>
+                    <% url = spree.product_path(product, taxon_id: @taxon&.id) %>
+                    <div class="">
+                      <div class="product-wrap" id="product_<%= product.id %>" data-hook="products_list_item">
+                        <%= link_to url, 'aria-label': product.name, data: { turbolinks: false }, aria: { label: "#{product.name} link" } do %>
+                          <div class="product-img">
+                            <%= plp_and_carousel_image(product, "product-component-plp-image") %>
+                            <div class="price">
+                              <% if product&.sale_prices&.active&.present? %>
+                                <span><%= display_original_price(product.lowest_sale_price.price.variant) %></span>
+                                <%= product.lowest_sale_price.display_price %>
+                              <% else %>
+                                <%= display_price(product) %>
+                              <% end %> 
+                            </div>
+                          </div>
+                          <div class="product-desc"><% if product&.sale_prices&.active&.present? %><span class="ending-badge"><%= display_highest_discount_percent(product) %></span><% end %>
+                            <div class="product-desc-title"><%= product.name %></div>
+                          </div>
+                        <% end %>
+                      </div>
+                    </div>
+                  <% end %>
+                  <%#= render 'spree/products/product', product: product, image_class: 'product-component-plp-image' %>
                 <% end %>
-              </ul>
+              </div>
             </div>
           </div>
           <div class="col-lg-2"></div>
@@ -40,44 +53,44 @@
 <% end %>
 
 <script>
-  $(document).ready(function() {
-    $('#recently-viewed-products').lightSlider({
-        item: 6,
-        loop: false,
-        slideMove: 1,
-        easing: 'cubic-bezier(0.25, 0, 0.25, 1)',
-        speed: 600,
-    slideMargin: 120,
+  $('#recently-viewed-products').lightSlider({
+    item: 6,
+    loop: false,
+    slideMove: 1,
+    easing: 'cubic-bezier(0.25, 0, 0.25, 1)',
+    speed: 600,
     enableTouch: true,
     pager: false,
     onSliderLoad: function (el) {
       var parent = el.parent();
       var action = parent.find('.lSAction');
       action.insertBefore(parent);
-      },
-        responsive : [
-        {
-          breakpoint:1199,
-          settings: {
-            slideMargin: 40,
-          }
-        },
-        {
-          breakpoint:991,
-          settings: {
-            item:2,
-            slideMove:1,
-            slideMargin: 30
-          }
-        },
-        {
-          breakpoint:575,
-          settings: {
-            item:1,
-            slideMargin:20
-          }
+    },
+    responsive: [
+      {
+        breakpoint: 1500,
+        settings: {
+          item: 4,
+          slideMargin: 0,
+          slideMove: 1,
         }
-      ]
-    });
+      },
+      {
+        breakpoint: 991,
+        settings: {
+          item: 2,
+          slideMove: 1,
+          slideMargin: 30
+        }
+      },
+      {
+        breakpoint: 575,
+        settings: {
+          item: 1,
+          slideMove: 1,
+          slideMargin: 20
+        }
+      }
+    ]
   });
-</script> 
+  </script>
