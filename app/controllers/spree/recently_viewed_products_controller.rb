@@ -27,9 +27,12 @@ module Spree
     end
 
     def clear_all
-      ActiveRecord::Base.connected_to(role: :writing) do
-        @recently_viewed_products.delete_all
+      if spree_current_user.present? && spree_current_user&.viewed_products&.present?
+        ActiveRecord::Base.connected_to(role: :writing) do
+          spree_current_user.viewed_products.delete_all
+        end
       end
+      cookies.delete('recently_viewed_products')
       respond_to do |format|
         format.html { redirect_to request.referer }
         format.js
