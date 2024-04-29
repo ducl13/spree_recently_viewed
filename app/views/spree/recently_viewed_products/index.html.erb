@@ -13,7 +13,7 @@
         <%= render partial: 'filters' %>
         <%= render partial: 'mobile_filters' %>
         <% if @recently_viewed_products.present? %>
-          <%= render 'spree/shared/products', products: @recently_viewed_products %>
+          <%= render 'products', products: @recently_viewed_products %>
         <% end %>
       </div>
       <% if @recently_viewed_products.present? %>

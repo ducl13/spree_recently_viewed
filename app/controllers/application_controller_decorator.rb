@@ -6,7 +6,6 @@ module ApplicationControllerDecorator
   private
 
   def transfer_viewed_products_from_cookies
-    debugger
     recently_viewed_products = cookies['recently_viewed_products'].split(', ')
 
     # Get user's ViewedProduct records
